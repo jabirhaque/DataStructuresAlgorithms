@@ -52,56 +52,116 @@ def decode(compressed_moves):
     return decompressed
 
 def compute_winner_compressed(compressed_moves_A, compressed_moves_B):
+    def points(compressed_moves_A, compressed_moves_B):
+        if compressed_moves_A == compressed_moves_B: return 0,0
+        a = 0
+        b = 0
+        if compressed_moves_A[0] == 'R':
+            if compressed_moves_B[0] == 'S':
+                a += 1
+            elif compressed_moves_B[0] == 'P':
+                b += 1
+        elif compressed_moves_A[0] == 'P':
+            if compressed_moves_B[0] == 'R':
+                a += 1
+            elif compressed_moves_B[0] == 'S':
+                b += 1
+        else:
+            if compressed_moves_B[0] == 'P':
+                a += 1
+            elif compressed_moves_B[0] == 'R':
+                b += 1
 
-    def outcome(a, b):
-        if a == b:
-            return 0
-        if (a, b) in [('R', 'S'), ('S', 'P'), ('P', 'R')]:
-            return 1
-        return -1
+        if compressed_moves_A[1] == '1':
+            compressed_moves_A = compressed_moves_A[2:]
+        else:
+            compressed_moves_A = compressed_moves_A[0] + str(int(compressed_moves_A[1])-1) + compressed_moves_A[2:]
+        if compressed_moves_B[1] == '1':
+            compressed_moves_B = compressed_moves_B[2:]
+        else:
+            compressed_moves_B = compressed_moves_B[0] + str(int(compressed_moves_B[1])-1) + compressed_moves_B[2:]
 
-    i = j = 0
-    remA = remB = 0
+        i, j = points(compressed_moves_A, compressed_moves_B)
+        return a+i, b+j
 
-    scoreA = 0
-    scoreB = 0
-
-    while i < len(compressed_moves_A) and j < len(compressed_moves_B):
-        if remA == 0:
-            moveA = compressed_moves_A[i]
-            remA = int(compressed_moves_A[i+1])
-            i += 2
-        if remB == 0:
-            moveB = compressed_moves_B[j]
-            remB = int(compressed_moves_B[j+1])
-            j += 2
-        k = min(remA, remB)
-        result = outcome(moveA, moveB)
-        if result == 1:
-            scoreA += k
-        elif result == -1:
-            scoreB += k
-        remA -= k
-        remB -= k
-    if scoreA > scoreB:
-        return "A"
-    elif scoreB > scoreA:
-        return "B"
+    a, b = points(compressed_moves_A, compressed_moves_B)
+    if a > b: return "A"
+    if a < b: return "B"
     return "D"
 
 
 #### WRITE YOUR SOLUTION ABOVE; DO NOT MODIFY CODE BELOW THIS LINE ####
 #### DO NOT INCLUDE CODE BELOW THIS LINE IN q1.py ####
 
-moves_a = "RRSPPS"
-moves_b = "RSPRSP"
-
-
 def q1_simple_tests():
-    assert(compute_winner(moves_a,moves_b)=="A")
-    assert(encode(moves_a)=="R2S1P2S1")
-    assert(encode(moves_b)=="R1S1P1R1S1P1")
-    assert(decode("R2S3P1")=="RRSSSP")
-    assert(compute_winner_compressed(encode(moves_a),encode(moves_b))=="A")
-    
+    # --- Given example ---
+    moves_a = "RRSPPS"
+    moves_b = "RSPRSP"
+    assert(compute_winner(moves_a, moves_b) == "A")
+    assert(encode(moves_a) == "R2S1P2S1")
+    assert(encode(moves_b) == "R1S1P1R1S1P1")
+    assert(decode("R2S3P1") == "RRSSSP")
+    assert(compute_winner_compressed(encode(moves_a), encode(moves_b)) == "A")
+
+    # --- Basic single-move cases ---
+    assert(compute_winner("R", "S") == "A")
+    assert(compute_winner("S", "R") == "B")
+    assert(compute_winner("P", "P") == "D")
+
+    # --- Equal repeated moves ---
+    assert(encode("RRR") == "R3")
+    assert(encode("SSS") == "S3")
+    assert(encode("PPP") == "P3")
+    assert(decode("R3") == "RRR")
+
+    # --- Alternating sequences ---
+    assert(encode("RPRPRP") == "R1P1R1P1R1P1")
+    assert(decode("R1P1R1P1R1P1") == "RPRPRP")
+
+    # --- Edge: long mixed + decode + encode inversion ---
+    m = "RRRSSPPSSPRR"
+    assert(decode(encode(m)) == m)
+
+    # --- Winner consistency between compressed and normal ---
+    a = "RRRRSSPPPS"
+    b = "SSSSRPRPRS"
+    assert(compute_winner(a, b) == compute_winner_compressed(encode(a), encode(b)))
+
+    # --- Draw cases ---
+    assert(compute_winner("RPS", "RPS") == "D")
+    assert (compute_winner("RPS", "RSP") == "D")
+    # Check compressed version too
+    assert(compute_winner_compressed("R1P1S1", "R1P1S1") == "D")
+
+    # --- All pairwise matchups for length 3 ---
+    for A in ["R", "P", "S"]:
+        for B in ["R", "P", "S"]:
+            # build length-3 repeats
+            sA = A*3
+            sB = B*3
+            winner = compute_winner(sA, sB)
+            winner_c = compute_winner_compressed(encode(sA), encode(sB))
+            assert(winner == winner_c)
+
+    # --- Alternating long tests ---
+    a = "RPS"*5
+    b = "SPR"*5
+    assert(compute_winner(a, b) == compute_winner_compressed(encode(a), encode(b)))
+
+    # --- Random-like (deterministic) patterns ---
+    patterns = [
+        "RRSPSPRSPR",
+        "SPPRRSSRSP",
+        "PRSRSPRSPR",
+        "RRRRRPSSSS",
+        "PSPSPSPSPS",
+        "RSSPRSPRSP",
+    ]
+    for x in patterns:
+        for y in patterns:
+            assert(decode(encode(x)) == x)
+            assert(compute_winner(x, y) == compute_winner_compressed(encode(x), encode(y)))
+
+    print("All tests passed!")
+
 q1_simple_tests()
