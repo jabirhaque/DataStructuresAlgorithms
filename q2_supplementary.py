@@ -40,29 +40,53 @@ class LinkedGridWithTails:
 #### DO NOT INCLUDE CODE ABOVE THIS LINE IN q2.py ####
 
 def show(linkedgrid):
-    """Prints the linked grid in a readable format (for debugging)."""
-    raise NotImplementedError("Implement this function")
+    head = linkedgrid.head
+    while head is not None:
+        current = head
+        while current is not None:
+            print(str(current.data)+" ", end='')
+            current = current.nextX
+        print()
+        head = head.nextY
 
 
 def fetch(linkedgrid, i, j):
-    """Returns the data at position (i, j) in the linked grid; i.e. the data held in the ith row and the jth column.
-    Note: i and j are 1-indexed. fetch(linkedgrid, 1, 1) returns the data in the head node.
-    """
-    raise NotImplementedError("Implement this function")
-
+    current = linkedgrid.head
+    while i>1:
+        current = current.nextY
+        i-=1
+    while j>1:
+        current = current.nextX
+        j-=1
+    return current.data
 
 
 def hor_cat(linked_grid_a, linked_grid_b):
-    """Horizontally concatenates two linked grids of the same height (same sizeY)
-    and returns the resulting linked grid. May modify inputs."""
-    raise NotImplementedError("Implement this function")
+    linked_grid_a.sizeX += linked_grid_b.sizeX
+    a_head = linked_grid_a.head
+    b_head = linked_grid_b.head
+    while a_head is not None:
+        current = a_head
+        while current.nextX is not None:
+            current = current.nextX
+        current.nextX = b_head
+        a_head = a_head.nextY
+        b_head = b_head.nextY
+    return linked_grid_a
 
     
 
 def smart_hor_cat(tailed_grid_a, tailed_grid_b):
-    """Horizontally concatenates two linked grids with tails of the same height
-    and returns the resulting linked grid with tails. May modify inputs."""
-    raise NotImplementedError("Implement this function")
+    tailed_grid_a.sizeX += tailed_grid_b.sizeX
+    a_tail = tailed_grid_a.tailX
+    b_head = tailed_grid_b.head
+    while a_tail is not None:
+        a_tail.nextX = b_head
+        a_tail = a_tail.nextY
+        b_head = b_head.nextY
+    tailed_grid_a.tailX = tailed_grid_b.tailX
+    tailed_grid_a.tailXY = tailed_grid_b.tailXY
+    return tailed_grid_a
 
 def transpose(linked_grid):
     """Returns the transpose of the inputted linked grid with tails.
@@ -109,7 +133,7 @@ def q2_simple_tests():
     N5 = Node(data=201)
     N6 = Node(data=202)
     N5.nextY = N6
-    N6.nextY = None 
+    N6.nextY = None
     N5.nextX = None
     N6.nextX = None
     linked_grid_b = LinkedGrid(head=N5, sizeX=1, sizeY=2)
@@ -234,3 +258,5 @@ def q2_simple_tests():
     # should print
     #  24 18
     #  16 20
+
+q2_simple_tests()
