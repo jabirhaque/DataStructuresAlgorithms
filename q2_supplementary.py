@@ -89,15 +89,37 @@ def smart_hor_cat(tailed_grid_a, tailed_grid_b):
     return tailed_grid_a
 
 def transpose(linked_grid):
-    """Returns the transpose of the inputted linked grid with tails.
-    May modify the inputted linked grid."""
-    raise NotImplementedError("Implement this function")
+    x = linked_grid.sizeX
+    linked_grid.sizeX = linked_grid.sizeY
+    linked_grid.sizeY = x
+    head = linked_grid.head
+    while head is not None:
+        current = head
+        while current is not None:
+            temp = current.nextX
+            current.nextX = current.nextY
+            current.nextY = temp
+            current = temp
+        head = head.nextX
+
+    temp = linked_grid.tailX
+    linked_grid.tailX = linked_grid.tailY
+    linked_grid.tailY = temp
+    return linked_grid
 
 def element_wise_add(linked_grid_a, linked_grid_b):
-    """Returns a linked grid which is the element-wise sum of the two inputted linked grids.
-    Assumes the two inputted linked grids have the same dimensions. May modify inputs."""
-    raise NotImplementedError("Implement this function")
-
+    a_head = linked_grid_a.head
+    b_head = linked_grid_b.head
+    while a_head is not None:
+        a_current = a_head
+        b_current = b_head
+        while a_current is not None:
+            a_current.data += b_current.data
+            a_current = a_current.nextX
+            b_current = b_current.nextX
+        a_head = a_head.nextY
+        b_head = b_head.nextY
+    return linked_grid_a
 
 #### WRITE YOUR SOLUTION ABOVE; DO NOT MODIFY CODE BELOW THIS LINE ####
 #### DO NOT INCLUDE CODE BELOW THIS LINE IN q2.py ####
