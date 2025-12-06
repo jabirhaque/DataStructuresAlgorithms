@@ -24,26 +24,11 @@ def all_sars(k):
             result.append(current)
             return
         if prefix > k: return
-        copy1 = [item for item in current]
-        copy1.append(1)
-        backtrack(copy1, prefix+1, k-1, result)
-        copy2 = [item for item in current]
-        copy2.append(0)
-        backtrack(copy2, prefix, k-1, result)
-        if (prefix>0):
-            copy3 = [item for item in current]
-            copy3.append(-1)
-            backtrack(copy3, prefix-1, k-1, result)
+        backtrack(current+[1], prefix+1, k-1, result)
+        backtrack(current+[0], prefix, k-1, result)
+        if prefix>0: backtrack(current+[-1], prefix-1, k-1, result)
         return
 
     result = []
     backtrack([], 0, k, result)
     return result
-
-def check_all_sars(sars):
-    for sar in sars:
-        if not is_sar(sar): return False
-    return True
-
-for i in range(0, 16):
-    print(check_all_sars(all_sars(i)))
