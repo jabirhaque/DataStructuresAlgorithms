@@ -36,30 +36,35 @@ class HashTable():
 #### COPY YOUR CODE FROM BELOW INTO A FILE q3.py FOR SUBMISSION ####
 #### DO NOT INCLUDE CODE ABOVE THIS LINE IN q3.py ####
 
-def hash_quadratic(d):
-    """Inserts keys from the list d into a hash table and
-    returns the HashTable which contains the state of the 
-    hash table after these insertions.
+def hash_quadratic(D):
+    table_size = 23
+    h = HashTable(table_size)
+    for k in D:
+        h0 = (5 * k + 7) % table_size
+        i = 0
+        while True:
+            pos = (h0 + i * i) % table_size
+            if h.lookup(pos) == "-":
+                h.add(pos, k)
+                break
+            i += 1
+    return h
 
-    Use just one HashTable instance inside this function.
-    
-    Uses quadratic probing (see question for details) to resolve 
-    collisions.
-    """
-    raise NotImplementedError("Implement this function")
 
-def hash_double(d):
-    """Inserts keys from the list d into a hash table and
-    returns the HashTable which contains the state of the 
-    hash table after these insertions.
-
-    Use just one HashTable instance inside this function.
-    
-    Uses secondary hashing (see question for details) to resolve
-    collisions.
-    """
-    raise NotImplementedError("Implement this function")
-
+def hash_double(D):
+    table_size = 23
+    h = HashTable(table_size)
+    for k in D:
+        h1 = (5 * k + 7) % table_size
+        h2 = 11 - (k % 11)
+        i = 0
+        while True:
+            pos = (h1 + i * h2) % table_size
+            if h.lookup(pos) == "-":
+                h.add(pos, k)
+                break
+            i += 1
+    return h
 
 #### WRITE YOUR SOLUTION ABOVE; DO NOT MODIFY CODE BELOW THIS LINE ####
 #### DO NOT INCLUDE CODE BELOW THIS LINE IN q2.py ####
@@ -80,3 +85,4 @@ def q3_simple_tests():
     assert(hash_double([28, 5]).check(['-', '-', '-', '-', '-', '-', '-', '-', '-',
         28, '-', '-', '-', '-', '-', 5, '-', '-', '-', '-', '-', '-', '-']))
 
+q3_simple_tests()
